@@ -4,8 +4,9 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const { dataSource } = require("./db/data-source");
-
 const users_controller = require('./controllers/users_controller')
+
+require('dotenv').config()
 
 const app = express();
 
@@ -15,10 +16,28 @@ app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIE_KEY));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/users', users_controller);
+
+// check if user is logged in
+app.use(async (req, res, next)=> {
+  if (req.signedCookies && req.signedCookies.alissapropbet_session) {
+    const email = req.signedCookies.alissapropbet_session;
+    const userRepository = dataSource.getRepository("User")
+    const currentUser = await userRepository.findOne({
+      where: { email: email }
+    })
+    req.currentUser = currentUser
+  };
+  next();
+})
+
+app.get('/', (req, res)=> {
+  const email = req.currentUser? req.currentUser.email : '';
+  res.render('index', {email})
+});
 
 // establish database connection
 dataSource

@@ -1,5 +1,13 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  if email
+    h5 Signed In as:
+    p= email
+    form#sign-out(action='/users/sign-out' method='post')
+    a(href='javascript:void(0)' onclick="document.getElementById('sign-out').submit();") Sign Out
+    input(type='hidden')
+  else
+    h5 Not signed in
+    a(href='users/sign-in') Sign In
+

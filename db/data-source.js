@@ -5,7 +5,7 @@ const dataSource = new DataSource({
     host: "localhost",
     port: 5432,
     database: "alissapropbet",
-    entities: ["../models/*.js"],
+    entities: [__dirname + "/../models/*.js"],
     logging: true,
     migrations: ["./migrations/*.js"],
     synchronize: true
